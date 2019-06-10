@@ -1,0 +1,41 @@
+{
+  "name": "app",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@uifabric/fluent-theme": "^0.16.5",
+    "fm.liveswitch": "^1.3.2-6890",
+    "i18next": "^15.1.0",
+    "i18next-browser-languagedetector": "^3.0.1",
+    "i18next-fluent": "0.0.4",
+    "i18next-fluent-backend": "0.0.2",
+    "lodash": "^4.17.11",
+    "node-sass": "^4.11.0",
+    "office-ui-fabric-react": "^6.167.3",
+    "querystring": "^0.2.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-i18next": "^10.9.0",
+    "react-redux": "^7.0.2",
+    "react-router-dom": "^5.0.0",
+    "react-scripts": "2.1.8",
+    "redux": "^4.0.1",
+    "redux-api-middleware": "^3.0.1",
+    "redux-thunk": "^2.3.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}
