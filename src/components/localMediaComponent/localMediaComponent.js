@@ -25,11 +25,11 @@ class LocalMediaComponent extends Component {
         //this.start();
         return <div>
             <button
-              //disabled={this.state.isStarted ? "disabled" : ""}
+              disabled={this.state.isStarted ? "disabled" : ""}
               onClick={() => this.start()}
               >Start Local Media</button>
             <button
-              //disabled={this.state.isStarted ? "" : "disabled"}
+              disabled={this.state.isStarted ? "" : "disabled"}
               onClick={() => this.stop()}
             >Stop Local Media</button>
         </div>
@@ -38,20 +38,17 @@ class LocalMediaComponent extends Component {
     componentWillUnmount () {
     };
 
-    start = () => {
+    start () {
         const { localMedia } = this.state;
 
         fmLiveswitch.Log.info("Starting LocalMedia...");
-        debugger;
         if (localMedia !== null){
-            debugger;
             localMedia.start().then((o) => {
-                debugger;
                 fmLiveswitch.Log.info("LocalMedia started");
 
                 //var layoutManager = new fmLiveswitch.DomLayoutManager(videoContainer);
 
-                this.setState({ localMedia: localMedia, isStarted: true });
+                this.setState({ isStarted: true });
             })
             .fail((ex) => {
                 debugger;
@@ -60,16 +57,16 @@ class LocalMediaComponent extends Component {
         }
     };
 
-    stop = () => {
+    stop () {
         const { localMedia } = this.state;
-        debugger;
+
         if (localMedia !== null){
             localMedia.stop().then((o) => {
                 fmLiveswitch.Log.info("LocalMedia stopped");
 
                 //var layoutManager = new fmLiveswitch.DomLayoutManager(videoContainer);
 
-                this.setState({ localMedia: localMedia, isStarted: false });
+                this.setState({ isStarted: false });
             },
             (ex) => {
                 fmLiveswitch.Log.error("Failed to stop localMedia. " + ex);

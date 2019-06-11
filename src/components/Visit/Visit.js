@@ -13,17 +13,17 @@ function Visit (props) {
       <VisitHeader />
       <Stack horizontal verticalFill>
         <Stack.Item grow>
-          <VideoComponent
+          {/* <VideoComponent
             isVideoCall
-            channelId={params.visitId} />
+            channelId={params.visitId} /> */}
 
-             {/* <ClientComponent
+             <ClientComponent
               gatewayUrl = 'https://v1.liveswitch.fm:8443/sync' //'https://stage-liveswitch.on.novarihealth.net:8443/sync'
               applicationId = 'my-app-id'
               userId = '01010101-0101-0101-0101-010101010101'
             />
 
-            <LocalMedia /> */}
+            <LocalMedia />
 
 
         </Stack.Item>
