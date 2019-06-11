@@ -9,7 +9,7 @@ const mapStateToProps = (state) => ({
     userId: '01010101-0101-0101-0101-010101010101'
   },
   frozenMountainVideoConfiguration: {
-    FrozenMountainVideoBaseUrl: 'https://stage-liveswitch.on.novarihealth.net:8443/sync'
+    FrozenMountainVideoBaseUrl: 'https://v1.liveswitch.fm:8443/sync', //'https://stage-liveswitch.on.novarihealth.net:8443/sync'
   }
 })
 

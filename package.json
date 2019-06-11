@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@uifabric/fluent-theme": "^0.16.5",
-    "fm.liveswitch": "^1.3.2-6890",
+    "fm.liveswitch": "^1.3.2-6889",
     "i18next": "^15.1.0",
     "i18next-browser-languagedetector": "^3.0.1",
     "i18next-fluent": "0.0.4",

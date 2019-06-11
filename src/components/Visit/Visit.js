@@ -2,6 +2,8 @@ import React from 'react'
 import { Stack } from 'office-ui-fabric-react/lib-commonjs/Stack'
 import VisitHeader from '../VisitHeader'
 import VideoComponent from '../videoComponent'
+import ClientComponent from '../clientComponent'
+import LocalMedia from '../localMediaComponent'
 import './Visit.scss'
 
 function Visit (props) {
@@ -14,6 +16,16 @@ function Visit (props) {
           <VideoComponent
             isVideoCall
             channelId={params.visitId} />
+
+             {/* <ClientComponent
+              gatewayUrl = 'https://v1.liveswitch.fm:8443/sync' //'https://stage-liveswitch.on.novarihealth.net:8443/sync'
+              applicationId = 'my-app-id'
+              userId = '01010101-0101-0101-0101-010101010101'
+            />
+
+            <LocalMedia /> */}
+
+
         </Stack.Item>
       </Stack>
     </Stack>

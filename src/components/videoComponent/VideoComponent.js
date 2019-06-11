@@ -69,7 +69,7 @@ class VideoComponent extends Component {
       client.getId(),
       client.getRoles(),
       [new fmLiveswitch.ChannelClaim(channelId)],
-      'fe3340734348437a844ce11c99766bcd6dc8ce6686834fefae7e8c1e70651152' // TODO replace this with an auth server
+      '--replaceThisWithYourOwnSharedSecret--'//'fe3340734348437a844ce11c99766bcd6dc8ce6686834fefae7e8c1e70651152' // TODO replace this with an auth server
     )
     var iceServers = [
       new fmLiveswitch.IceServer('stun:turn.frozenmountain.com:3478'),
