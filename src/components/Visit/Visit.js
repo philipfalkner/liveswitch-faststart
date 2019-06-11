@@ -6,6 +6,7 @@ import ClientComponent from '../clientComponent'
 import LocalMedia from '../localMediaComponent'
 import Channel from '../Channel'
 import VideoControls from '../VideoControls'
+import Layout from '../Layout'
 import './Visit.scss'
 import fmLiveswitch from 'fm.liveswitch'
 
@@ -33,6 +34,7 @@ function Visit(props) {
 
           {/* Rendering components */}
           <VideoControls />
+          <Layout channelId={params.visitId} />
         </Stack.Item>
       </Stack>
     </Stack>

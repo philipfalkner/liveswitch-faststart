@@ -24,3 +24,20 @@ export const stoppedLocalMedia = () => {
     type: constants.LOCAL_MEDIA_STOPPED
   }
 }
+
+export const openSfuUpstream = (channelId) => {
+  return {
+    type: constants.OPEN_SFU_UPSTREAM_CONNECTION,
+    payload: channelId
+  }
+}
+
+export const addRemoteMedia = (channelId, remoteMedia) => {
+  return {
+    type: constants.ADD_REMOTE_MEDIA,
+    payload: {
+      channelId: channelId,
+      remoteMedia: remoteMedia
+    }
+  }
+}

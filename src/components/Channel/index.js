@@ -1,3 +1,3 @@
-import Channel from './Channel'
+import Channel from './channelContainer'
 
 export default Channel
