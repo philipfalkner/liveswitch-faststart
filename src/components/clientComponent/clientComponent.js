@@ -90,7 +90,7 @@ class ClientComponent extends Component {
   }
 
   render() {
-    return <div />
+    return null
   }
 }
 
