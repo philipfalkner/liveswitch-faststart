@@ -4,6 +4,7 @@ import VisitHeader from '../VisitHeader'
 import VideoComponent from '../videoComponent'
 import ClientComponent from '../clientComponent'
 import LocalMedia from '../localMediaComponent'
+import VideoControls from '../VideoControls'
 import './Visit.scss'
 
 function Visit (props) {
@@ -25,7 +26,7 @@ function Visit (props) {
 
             <LocalMedia />
 
-
+            <VideoControls />
         </Stack.Item>
       </Stack>
     </Stack>

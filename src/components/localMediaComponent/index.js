@@ -1,3 +1,3 @@
-import ClientComponent from './localMediaComponent'
+import LocalMedia from './localMediaContainer'
 
-export default ClientComponent
+export default LocalMedia
