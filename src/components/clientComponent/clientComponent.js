@@ -90,7 +90,13 @@ class ClientComponent extends Component {
   }
 
   render() {
-    return null
+    const { client } = this.state
+
+    const childrenWithProps = React.Children.map(this.props.children, child =>
+      React.cloneElement(child, { client: client })
+    );
+
+    return childrenWithProps
   }
 }
 
