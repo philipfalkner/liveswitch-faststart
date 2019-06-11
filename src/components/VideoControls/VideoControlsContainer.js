@@ -9,7 +9,8 @@ const mapDispatchToProps = {
 
 const mapStateToProps = (state) => ({
   currentLocalMediaState: state.liveswitch.currentLocalMediaState,
-  targetLocalMediaState: state.liveswitch.targetLocalMediaState
+  targetLocalMediaState: state.liveswitch.targetLocalMediaState,
+  localMediaVideoElement: state.liveswitch.localMediaVideoElement
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(VideoControls)

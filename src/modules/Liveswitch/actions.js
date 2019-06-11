@@ -12,9 +12,10 @@ export const stopLocalMedia = () => {
   }
 }
 
-export const startedLocalMedia = () => {
+export const startedLocalMedia = (localMediaVideoElement) => {
   return {
-    type: constants.LOCAL_MEDIA_STARTED
+    type: constants.LOCAL_MEDIA_STARTED,
+    payload: localMediaVideoElement
   }
 }
 

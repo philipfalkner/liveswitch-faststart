@@ -1,7 +1,8 @@
 const initialState = {
   localMedia: {
     targetLocalMediaState: null,
-    currentLocalMediaState: null
+    currentLocalMediaState: null,
+    localMediaVideoElement: null
   }
 }
 

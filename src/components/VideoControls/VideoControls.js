@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types'
 import { Stack } from 'office-ui-fabric-react/lib-commonjs/Stack'
 import fmLiveswitch from 'fm.liveswitch'
@@ -37,7 +38,9 @@ class VideoControls extends Component {
 
   render () {
     const { allowStartLocalMedia, allowStopLocalMedia } = this.state
-    const { startLocalMedia, stopLocalMedia } = this.props
+    const { startLocalMedia, stopLocalMedia, localMediaVideoElement } = this.props
+
+    console.log('localMediaVideoElement:', localMediaVideoElement)
 
     return (
       <Stack horizontal verticalFill className='video-controls'>
@@ -53,6 +56,9 @@ class VideoControls extends Component {
               Stop Local Media
           </button>
         </Stack.Item>
+        {/* <Stack.Item>
+          {localMediaVideoElement} // this would render a JSX.Element
+        </Stack.Item> */}
       </Stack>
     )
     }

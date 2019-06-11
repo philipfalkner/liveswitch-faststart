@@ -1,4 +1,4 @@
-import { Component } from 'react'
+import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import fmLiveswitch from 'fm.liveswitch'
 
@@ -43,7 +43,7 @@ class LocalMediaComponent extends Component {
 
         //var layoutManager = new fmLiveswitch.DomLayoutManager(videoContainer)
 
-        this.props.startedLocalMedia()
+        this.props.startedLocalMedia(<div />) // TODO put something here with a MediaStream
       },
       (ex) => {
         fmLiveswitch.Log.error("Failed to start localMedia.", ex)

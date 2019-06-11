@@ -17,13 +17,15 @@ const actionHandlers = {
   [constants.LOCAL_MEDIA_STARTED]: (state, action) => {
     return {
       ...state,
-      currentLocalMediaState: fmLiveswitch.LocalMediaState.Started
+      currentLocalMediaState: fmLiveswitch.LocalMediaState.Started,
+      localMediaVideoElement: action.payload
     }
   },
   [constants.LOCAL_MEDIA_STOPPED]: (state, action) => {
     return {
       ...state,
-      currentLocalMediaState: fmLiveswitch.LocalMediaState.Stopped
+      currentLocalMediaState: fmLiveswitch.LocalMediaState.Stopped,
+      localMediaVideoElement: null
     }
   }
 }
