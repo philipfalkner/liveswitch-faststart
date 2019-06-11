@@ -12,9 +12,9 @@ class LocalMediaComponent extends Component {
   }
 
   componentDidMount() {
-    const { captureAudio, captureVideo } = this.props
+    const { captureAudio, videoConfig } = this.props
 
-    var localMedia = new fmLiveswitch.LocalMedia(captureAudio, captureVideo)
+    var localMedia = new fmLiveswitch.LocalMedia(captureAudio, videoConfig)
     this.setState({ localMedia: localMedia })
   }
 
@@ -41,9 +41,7 @@ class LocalMediaComponent extends Component {
       localMedia.start().then((o) => {
         fmLiveswitch.Log.info("LocalMedia started")
 
-        //var layoutManager = new fmLiveswitch.DomLayoutManager(videoContainer)
-
-        this.props.startedLocalMedia(<div />) // TODO put something here with a MediaStream
+        this.props.startedLocalMedia(localMedia.getView()) // returns DOM element of the video
       },
       (ex) => {
         fmLiveswitch.Log.error("Failed to start localMedia.", ex)
@@ -79,7 +77,7 @@ LocalMediaComponent.propTypes = {
 
 LocalMediaComponent.defaultProps = {
   captureAudio: true,
-  captureVideo: true
+  videoConfig: new fmLiveswitch.VideoConfig(800, 600, 15)
 }
 
 export default LocalMediaComponent

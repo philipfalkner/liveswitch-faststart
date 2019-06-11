@@ -6,6 +6,7 @@ import ClientComponent from '../clientComponent'
 import LocalMedia from '../localMediaComponent'
 import VideoControls from '../VideoControls'
 import './Visit.scss'
+import fmLiveswitch from 'fm.liveswitch'
 
 function Visit (props) {
   const { params } = props.match
@@ -24,7 +25,9 @@ function Visit (props) {
               applicationId = 'my-app-id'
               userId = '01010101-0101-0101-0101-010101010101'
             />
-          <LocalMedia />
+          <LocalMedia 
+            videoConfig = {new fmLiveswitch.VideoConfig(800, 600, 15)}>
+          </LocalMedia>
 
           {/* Rendering components */}
           <VideoControls />

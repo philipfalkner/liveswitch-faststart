@@ -8,6 +8,8 @@ class VideoControls extends Component {
   constructor(props) {
     super(props)
 
+    this.renderRef = React.createRef();
+
     this.state = {
       allowStartLocalMedia: false,
       allowStopLocalMedia: false
@@ -36,11 +38,22 @@ class VideoControls extends Component {
     return newState
   }
 
+  // componentDidUpdate(prevProps){
+  //   if (prevProps.localMediaVideoElement !== this.props.localMediaVideoElement){
+  //     console.log('refs: ', this.renderRef);
+  //     //var test = "<div>XXX</div>"
+  //     //ReactDOM.render(this.props.localMediaVideoElement, this.renderRef.current);
+  //   }
+  // }
+
   render () {
     const { allowStartLocalMedia, allowStopLocalMedia } = this.state
     const { startLocalMedia, stopLocalMedia, localMediaVideoElement } = this.props
 
+    fmLiveswitch.Log.info("LocalMedia started, and stream is available with getView")
     console.log('localMediaVideoElement:', localMediaVideoElement)
+
+
 
     return (
       <Stack horizontal verticalFill className='video-controls'>
@@ -55,6 +68,7 @@ class VideoControls extends Component {
             onClick={() => stopLocalMedia()}>
               Stop Local Media
           </button>
+          <div ref={render => (render && localMediaVideoElement && render.appendChild(localMediaVideoElement))}></div>
         </Stack.Item>
         {/* <Stack.Item>
           {localMediaVideoElement} // this would render a JSX.Element
