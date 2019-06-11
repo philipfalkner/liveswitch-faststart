@@ -28,7 +28,7 @@ class LocalMediaComponent extends Component {
           this.stop()
           break
         default:
-          console.log('Unknown target local media state', this.props.targetLocalMediaState)
+          fmLiveswitch.Log.error('Unknown target local media state', this.props.targetLocalMediaState)
       }
     }
   }
