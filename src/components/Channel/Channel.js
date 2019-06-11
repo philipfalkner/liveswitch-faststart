@@ -56,6 +56,19 @@ class Channel extends Component {
 
     client.join(channelId, token).then((channel) => {
       this.setState({ channel: channel })
+      
+      // Set up event handlers
+      channel.addOnMessage(this.onMessage)
+      channel.addOnRemoteClientJoin(this.onRemoteClientJoin)
+      channel.addOnRemoteUpstreamConnectionOpen(this.onRemoteUpstreamConnectionOpen)
+      channel.addOnRemoteUpstreamConnectionClose(this.onRemoteUpstreamConnectionClose)
+      channel.addOnPeerConnectionOffer(this.onPeerConnectionOffer)
+
+      // Query existing channel details
+      channel.getRemoteClientInfos().forEach((remoteClientInfo) => {
+        console.log('getRemoteClientInfos', remoteClientInfo)
+      })
+
       fmLiveswitch.Log.info(`Joined channel ${channelId}`)
     },
     (ex) => {
@@ -72,6 +85,28 @@ class Channel extends Component {
       fmLiveswitch.Log.error(`Failed to leave channel ${channelId}`, ex)
     })
   }
+
+  onMessage (message) {
+    console.log('onMessage', message)
+  }
+  
+  onRemoteClientJoin (remoteClientInfo) {
+    console.log('onRemoteClientJoin', remoteClientInfo)
+  }
+
+  onRemoteUpstreamConnectionOpen (remoteConnectionInfo) {
+    console.log('onRemoteUpstreamConnectionOpen', remoteConnectionInfo)
+  }
+
+  onRemoteUpstreamConnectionClose (remoteConnectionInfo) {
+    console.log('onRemoteUpstreamConnectionClose', remoteConnectionInfo)
+  }
+
+  onPeerConnectionOffer (peerConnectionOffer) {
+    console.log('onPeerConnectionOffer', 'not implemented')
+    // Not implemented
+  }
+
 }
 
 Channel.propTypes = {
