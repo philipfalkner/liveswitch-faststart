@@ -48,12 +48,7 @@ class VideoControls extends Component {
 
   render () {
     const { allowStartLocalMedia, allowStopLocalMedia } = this.state
-    const { startLocalMedia, stopLocalMedia, localMediaVideoElement } = this.props
-
-    fmLiveswitch.Log.info("LocalMedia started, and stream is available with getView")
-    console.log('localMediaVideoElement:', localMediaVideoElement)
-
-
+    const { startLocalMedia, stopLocalMedia, localMedia } = this.props
 
     return (
       <Stack horizontal verticalFill className='video-controls'>
@@ -68,7 +63,7 @@ class VideoControls extends Component {
             onClick={() => stopLocalMedia()}>
               Stop Local Media
           </button>
-          <div ref={render => (render && localMediaVideoElement && render.appendChild(localMediaVideoElement))}></div>
+          <div ref={nodeElement => (nodeElement && localMedia && nodeElement.appendChild(localMedia.getView()))}></div>
         </Stack.Item>
         {/* <Stack.Item>
           {localMediaVideoElement} // this would render a JSX.Element
@@ -81,6 +76,7 @@ class VideoControls extends Component {
 VideoControls.propTypes = {
   startLocalMedia: PropTypes.func,
   stopLocalMedia: PropTypes.func,
+  localMedia: PropTypes.object,
   currentLocalMediaState: PropTypes.number,
   targetLocalMediaState: PropTypes.number
 }

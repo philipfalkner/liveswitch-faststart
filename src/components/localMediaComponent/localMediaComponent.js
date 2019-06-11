@@ -41,7 +41,7 @@ class LocalMediaComponent extends Component {
       localMedia.start().then((o) => {
         fmLiveswitch.Log.info("LocalMedia started")
 
-        this.props.startedLocalMedia(localMedia.getView()) // returns DOM element of the video
+        this.props.startedLocalMedia(localMedia)
       },
       (ex) => {
         fmLiveswitch.Log.error("Failed to start localMedia.", ex)

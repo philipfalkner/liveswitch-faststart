@@ -18,7 +18,7 @@ const actionHandlers = {
     return {
       ...state,
       currentLocalMediaState: fmLiveswitch.LocalMediaState.Started,
-      localMediaVideoElement: action.payload
+      localMedia: action.payload
     }
   },
   [constants.LOCAL_MEDIA_STOPPED]: (state, action) => {

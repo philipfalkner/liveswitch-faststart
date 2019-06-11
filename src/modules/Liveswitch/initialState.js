@@ -1,9 +1,7 @@
 const initialState = {
-  localMedia: {
-    targetLocalMediaState: null,
-    currentLocalMediaState: null,
-    localMediaVideoElement: null
-  }
+  targetLocalMediaState: null,
+  currentLocalMediaState: null,
+  localMedia: null
 }
 
 export default initialState
