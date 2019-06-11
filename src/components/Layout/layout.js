@@ -17,7 +17,6 @@ function Layout(props) {
 
 function renderRemoteMedias(props) {
   let channel = props.channels && props.channels[props.channelId]
-  console.log('layout - remoteMedia', channel)
   let remoteMedias = channel && channel.remoteMedias && Object.values(channel.remoteMedias)
 
   return (

@@ -17,7 +17,6 @@ function App (props) {
     ]).catch(() => {
       setHasError(true)
     }).then(() => {
-      console.log('here')
     })
   }, [])
 

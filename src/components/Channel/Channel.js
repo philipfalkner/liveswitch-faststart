@@ -51,7 +51,6 @@ class Channel extends Component {
     
     if (prevShouldConnect != shouldConnect) {
       if (shouldConnect === true) {
-        console.log('openSfuUpStreamConnection called from componentDidUpdate')
         this.openSfuUpStreamConnection()
       }
     }
@@ -91,7 +90,7 @@ class Channel extends Component {
 
       // Query existing channel details
       channel.getRemoteClientInfos().forEach((remoteClientInfo) => {
-        console.log('getRemoteClientInfos', remoteClientInfo)
+        
       })
 
       fmLiveswitch.Log.info(`Joined channel ${channelId}`)
@@ -123,46 +122,34 @@ class Channel extends Component {
   }
 
   onRemoteUpstreamConnectionOpen(remoteConnectionInfo) {
-    console.log('onRemoteUpstreamConnectionOpen', remoteConnectionInfo)
-
     this.openSfuDownStreamConnection(remoteConnectionInfo)
 
     //check do we have a upstream connection open
     //for sfu -> sfu
     //for mcu -> sfu
 
-    console.log('onRemoteUpstreamConnectionOpen: upstream connections count: ', Object.keys(this.upstreamConnections))
-    
-    console.log('onRemoteUpstreamConnectionOpen: check for sfu upstream')
     var isSfuUpStreamConnectionOpen = false;
     for (var connectionId in this.upstreamConnections) {
       let connection = this.upstreamConnections[connectionId]
       if (connection.type === "sfu") {
-        console.log('onRemoteUpstreamConnectionOpen: found sfu upstream')
         isSfuUpStreamConnectionOpen = true;
         break;
       }
     }
 
-    console.log('onRemoteUpstreamConnectionOpen: check for mcu upstream')
     var isMcuUpStreamConnectionOpen = false;
     for (var connectionId in this.upstreamConnections) {
       let connection = this.upstreamConnections[connectionId]
       if (connection.type === "mcu") {
-        console.log('onRemoteUpstreamConnectionOpen: found mcu upstream')
         isMcuUpStreamConnectionOpen = true;
         break;
       }
     }
 
-    console.log('onRemoteUpstreamConnectionOpen: remote connection is', remoteConnectionInfo.getType())
-    console.log('onRemoteUpstreamConnectionOpen: isSfuUpStreamConnectionOpen is ', isSfuUpStreamConnectionOpen)
-    console.log('onRemoteUpstreamConnectionOpen: isMcuUpStreamConnectionOpen is ', isMcuUpStreamConnectionOpen)
     if (remoteConnectionInfo.getType() === "sfu"){
       if (isSfuUpStreamConnectionOpen === false) {
-        console.log('onRemoteUpstreamConnectionOpen: opening new sfu upstream')
+
         // this.props.startLocalMedia().then(() => {
-          console.log('openSfuUpStreamConnection called from onRemoteUpstreamConnectionOpen')
             this.openSfuUpStreamConnection();
           // }).fail((ex) => {
           //   console.log('failed to open upstream connection', ex)
@@ -243,7 +230,6 @@ class Channel extends Component {
         }
         else if (connection.getState() == fmLiveswitch.ConnectionState.Failed) {
           // Note: no need to close the connection as it's done for us.
-          console.log('openSfuUpStreamConnection called from openSfuUpStreamConnection')
           _this.openSfuUpstreamConnection(tag);
           //this.logConnectionState(connection, "SFU Upstream");
         }
@@ -322,26 +308,15 @@ class Channel extends Component {
       // Cleanup if the connection closes or fails.
       if (connection.getState() == fmLiveswitch.ConnectionState.Closing ||
         connection.getState() == fmLiveswitch.ConnectionState.Failing) {
-        // if (connection.getRemoteClosed()) {
-        //   fmLiveswitch.Log.info(connection.getId() + ': Media server closed the connection.');
-        // }
-        // Remove the remote view from the layout.
-        // var lm = this.layoutManager;
-        // if (lm != null) {
-        //   lm.removeRemoteView(remoteMedia.getId());
-        // }
 
         remoteMedia.destroy();
-        //this.logConnectionState(connection, "SFU Downstream");
         delete _this.downstreamConnections[connection.getId()];
       }
       else if (connection.getState() == fmLiveswitch.ConnectionState.Failed) {
         // Note: no need to close the connection as it's done for us.
         this.openSfuDownStreamConnection(remoteConnectionInfo, tag);
-        //this.logConnectionState(connection, "SFU Downstream");
       }
       else if (connection.getState() == fmLiveswitch.ConnectionState.Connected) {
-        //this.logConnectionState(connection, "SFU Downstream");
         _this.downstreamConnections[connection.getId()] = {
           rawObject: connection,
           type: connection.getType()
