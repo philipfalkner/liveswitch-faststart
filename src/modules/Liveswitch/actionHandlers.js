@@ -31,33 +31,36 @@ const actionHandlers = {
   [constants.OPEN_SFU_UPSTREAM_CONNECTION]: (state, action) => {
     const channelId = action.payload
 
-    let newState = { ...state }
-    let newChannels = { ...newState.channels }
-    let newChannel = { ...newChannels[channelId] }
-
-    newChannel.shouldConnect = true
-
-    newChannels[channelId] = newChannel
-    newState.channels = newChannels
-    return newState
+    return {
+      ...state,
+      channels: {
+        ...state.channels,
+        [channelId]: {
+          ...state.channels[channelId],
+          shouldConnect: true
+        }
+      }
+    }
   },
   [constants.ADD_REMOTE_MEDIA]: (state, action) => {
     const channelId = action.payload.channelId
     const remoteMedia = action.payload.remoteMedia
 
-    let newState = { ...state }
-    let newChannels = { ...newState.channels }
-    let newChannel = { ...newChannels[channelId] }
-    let newRemoteMedias = { ...newChannel.remoteMedias }
-
-    newRemoteMedias[remoteMedia.getId()] = {
-      mediaObject: remoteMedia
+    return {
+      ...state,
+      channels: {
+        ...state.channels,
+        [channelId]: {
+          ...state.channels[channelId],
+          remoteMedias: {
+            ...(state.channels[channelId] && state.channels[channelId].remoteMedias),
+            [remoteMedia.getId()]: {
+              mediaObject: remoteMedia
+            }
+          }
+        }
+      }
     }
-
-    newChannel.remoteMedias = newRemoteMedias
-    newChannels[channelId] = newChannel
-    newState.channels = newChannels
-    return newState
   }
 }
 
