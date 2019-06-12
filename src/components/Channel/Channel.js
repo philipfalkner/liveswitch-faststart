@@ -96,6 +96,7 @@ class Channel extends Component {
 
       // Set up event handlers
       channel.addOnMessage(this.onMessage.bind(this))
+      channel.addOnUserMessage(this.onUserMessage.bind(this))
       channel.addOnRemoteClientJoin(this.onRemoteClientJoin.bind(this))
       channel.addOnRemoteUpstreamConnectionOpen(this.onRemoteUpstreamConnectionOpen.bind(this))
       channel.addOnRemoteUpstreamConnectionClose(this.onRemoteUpstreamConnectionClose.bind(this))
@@ -147,6 +148,10 @@ class Channel extends Component {
 
   onMessage(clientInfo, message) {
     console.log('onMessage', clientInfo, message)
+  }
+
+  onUserMessage(clientInfo, message) {
+    console.log('onUserMessage', clientInfo, message)
   }
 
   onRemoteClientJoin(remoteClientInfo) {
