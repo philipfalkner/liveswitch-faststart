@@ -1,3 +1,8 @@
 .fm-video {
-  position: static !important
+  position: static !important;
+  height: 400px;
+
+  video {
+    position: static !important;
+  }
 }

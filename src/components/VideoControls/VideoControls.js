@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types'
 import { Stack } from 'office-ui-fabric-react/lib-commonjs/Stack'
 import fmLiveswitch from 'fm.liveswitch'
@@ -38,21 +37,13 @@ class VideoControls extends Component {
     return newState
   }
 
-  // componentDidUpdate(prevProps){
-  //   if (prevProps.localMediaVideoElement !== this.props.localMediaVideoElement){
-  //     console.log('refs: ', this.renderRef);
-  //     //var test = "<div>XXX</div>"
-  //     //ReactDOM.render(this.props.localMediaVideoElement, this.renderRef.current);
-  //   }
-  // }
-
   render () {
     const { allowStartLocalMedia, allowStopLocalMedia } = this.state
-    const { startLocalMedia, stopLocalMedia, localMedia } = this.props
+    const { startLocalMedia, stopLocalMedia } = this.props
 
     return (
-      <Stack horizontal verticalFill className='video-controls'>
-        <Stack.Item grow>
+      <Stack horizontal className='video-controls'>
+        <Stack.Item>
           <button
             disabled={allowStartLocalMedia ? '' : 'disabled'}
             onClick={() => startLocalMedia()}>
@@ -63,11 +54,7 @@ class VideoControls extends Component {
             onClick={() => stopLocalMedia()}>
               Stop Local Media
           </button>
-          <div ref={nodeElement => (nodeElement && localMedia && nodeElement.appendChild(localMedia.getView()))}></div>
         </Stack.Item>
-        {/* <Stack.Item>
-          {localMediaVideoElement} // this would render a JSX.Element
-        </Stack.Item> */}
       </Stack>
     )
     }
@@ -76,7 +63,6 @@ class VideoControls extends Component {
 VideoControls.propTypes = {
   startLocalMedia: PropTypes.func,
   stopLocalMedia: PropTypes.func,
-  localMedia: PropTypes.object,
   currentLocalMediaState: PropTypes.number,
   targetLocalMediaState: PropTypes.number
 }

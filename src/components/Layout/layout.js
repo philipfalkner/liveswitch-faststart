@@ -6,8 +6,8 @@ import './layout.scss'
 function Layout(props) {
   return (
     <Stack verticalFill className='video-layout'>
-      <Stack horizontal verticalFill>
-        <Stack.Item grow>
+      <Stack horizontal>
+        <Stack.Item>
           <button onClick={() => { props.openSfuUpstream(props.channelId) }}>Send SFU Upstream</button>
           <button onClick={() => { props.closeAllConnections(props.channelId) }}>Close Connections</button>
         </Stack.Item>
@@ -17,7 +17,7 @@ function Layout(props) {
           {renderRemoteMedias(props)}
         </Stack>
         <Stack vertical>
-          {/* local media */}
+          <div ref={nodeElement => (nodeElement && props.localMedia && nodeElement.appendChild(props.localMedia.getView()))}></div>
         </Stack>
       </Stack>
     </Stack>
@@ -33,7 +33,7 @@ function renderRemoteMedias(props) {
       {remoteMedias && remoteMedias.map((remoteMedia, i) => {
         return (
           <Stack.Item grow key={i}>
-            <div style={{overflow: 'auto', border: '1px black'}}
+            <div
               ref={nodeElement => (nodeElement && remoteMedia && remoteMedia.mediaObject && nodeElement.appendChild(remoteMedia.mediaObject.getView()))}
             />
           </Stack.Item>

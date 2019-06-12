@@ -8,7 +8,8 @@ const mapDispatchToProps = {
 }
 
 const mapStateToProps = (state) => ({
-    channels: state.liveswitch.channels
+    channels: state.liveswitch.channels,
+    localMedia: state.liveswitch.localMedia
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Layout)
