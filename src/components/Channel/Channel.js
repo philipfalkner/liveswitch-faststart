@@ -1,6 +1,7 @@
 import { Component } from 'react'
 import PropTypes from 'prop-types'
 import fmLiveswitch from 'fm.liveswitch'
+import { sessionType, connectionType, participantRole } from '../../helpers/sessionHelper'
 
 class Channel extends Component {
   constructor(props) {
@@ -18,6 +19,8 @@ class Channel extends Component {
     this.state = {
       channel: null
     }
+
+    console.log('session type: ' + props.sessionType);
   }
 
   componentDidMount() {
@@ -62,7 +65,7 @@ class Channel extends Component {
     }
     if (prevShouldConnect != shouldConnect) {
       if (shouldConnect === true) {
-        this.openSfuUpStreamConnection()
+        this.openCorrectTypeOfUpstreamConnection()
       } else {
         this.closeAllConnections()
       }
@@ -108,8 +111,12 @@ class Channel extends Component {
 
       fmLiveswitch.Log.info(`Joined channel ${channelId}`)
 
-      //open sfu upstream connection the moment we join the channel
-      // this.openSfuUpStreamConnection();
+      //look at session type to figure out what to send
+      console.log("Ready to send upstream")
+      console.log("Session Type:", this.props.sessionType)
+
+      //open upstream connection the moment we join the channel
+      this.openCorrectTypeOfUpstreamConnection()
     },
       (ex) => {
         fmLiveswitch.Log.error(`Failed to join channel ${channelId}`, ex)
@@ -126,6 +133,46 @@ class Channel extends Component {
         fmLiveswitch.Log.error(`Failed to leave channel ${channelId}`, ex)
       })
   }
+
+  openCorrectTypeOfUpstreamConnection () {
+    switch(this.props.sessionType){
+      case sessionType.private:
+        //depending on number of users pre-assigned to this session, we start a SFU or MCU upstream
+        if (true){
+          console.log("Opening SFU upstream")
+          this.openUpStreamConnection(sessionType.sfu);
+        }
+        else{
+          console.log("Opening MCU upstream")
+          this.openUpStreamConnection(sessionType.mcu);
+        }
+        break;  
+
+      case sessionType.public:
+      console.log("Opening MCU upstream")
+        this.openUpStreamConnection(sessionType.mcu);
+        break;                   
+
+      case sessionType.presentation:
+        //if presenter then upstream is sfu
+        //if student then upstream is mcu
+        console.log("role: ", this.props.role)
+        if (this.props.role === participantRole.presenter){
+          console.log("Opening SFU upstream")
+          this.openUpStreamConnection(sessionType.sfu);
+        }
+          else if (this.props.role === participantRole.student){
+            console.log("Opening MCU upstream")
+            this.openUpStreamConnection(sessionType.mcu);
+          }
+            else{
+              console.log("Invalid role");}
+        break;  
+        
+      default:
+        console.log("Invalid session type")
+    }
+}
 
   closeAllConnections(){
     //upstreams
@@ -212,7 +259,7 @@ class Channel extends Component {
     // Not implemented
   }
 
-  openSfuUpStreamConnection(tag) {
+  openUpStreamConnection(requestedConnectionType, tag) {
     const { client, channelId, localMedia } = this.props
     const { channel } = this.state
 
@@ -243,7 +290,11 @@ class Channel extends Component {
       if (localMedia.getVideoTrack() !== null)
         videoStream = new fmLiveswitch.VideoStream(localMedia);
 
-      connection = channel.createSfuUpstreamConnection(audioStream, videoStream, dataStream);
+      if (requestedConnectionType === connectionType.sfu)
+        connection = channel.createSfuUpstreamConnection(audioStream, videoStream, dataStream);
+      else
+        //what method must be invoked to open mcu upstream connection
+        connection = channel.createMcuConnection(audioStream, videoStream, dataStream);
 
       if (tag)
         connection.setTag(tag);
@@ -275,7 +326,7 @@ class Channel extends Component {
         }
         else if (connection.getState() == fmLiveswitch.ConnectionState.Failed) {
           // Note: no need to close the connection as it's done for us.
-          _this.openSfuUpstreamConnection(tag);
+          _this.openUpstreamConnection(requestedConnectionType, tag);
           //this.logConnectionState(connection, "SFU Upstream");
         }
         else if (connection.getState() == fmLiveswitch.ConnectionState.Connected) {

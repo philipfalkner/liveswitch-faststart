@@ -28,7 +28,7 @@ const actionHandlers = {
       localMediaVideoElement: null
     }
   },
-  [constants.OPEN_SFU_UPSTREAM_CONNECTION]: (state, action) => {
+  [constants.OPEN_UPSTREAM_CONNECTION]: (state, action) => {
     const channelId = action.payload
 
     return {

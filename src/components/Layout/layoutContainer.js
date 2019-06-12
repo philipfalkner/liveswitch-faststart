@@ -1,9 +1,9 @@
 import { connect } from 'react-redux'
 import Layout from './layout'
-import { openSfuUpstream, closeAllConnections, sendMessage } from '../../modules/Liveswitch/actions'
+import { openUpstream, closeAllConnections, sendMessage } from '../../modules/Liveswitch/actions'
 
 const mapDispatchToProps = {
-    openSfuUpstream,
+    openUpstream,
     closeAllConnections,
     sendMessage
 }

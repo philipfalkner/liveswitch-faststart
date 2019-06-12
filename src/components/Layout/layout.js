@@ -8,7 +8,7 @@ function Layout(props) {
     <Stack verticalFill className='video-layout'>
       <Stack horizontal>
         <Stack.Item>
-          <button onClick={() => { props.openSfuUpstream(props.channelId) }}>Send SFU Upstream</button>
+          <button onClick={() => { props.openUpstream(props.channelId) }}>Send Upstream</button>
           <button onClick={() => { props.closeAllConnections(props.channelId) }}>Close Connections</button>
         </Stack.Item>
       </Stack>

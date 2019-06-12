@@ -9,9 +9,13 @@ import VideoControls from '../VideoControls'
 import Layout from '../Layout'
 import './Visit.scss'
 import fmLiveswitch from 'fm.liveswitch'
+import querystring from 'querystring'
 
 function Visit(props) {
   const { params } = props.match
+  const { search } = props.location
+  const { sessionType, role } = querystring.parse(search.substring(1))
+
   return (
     <Stack verticalFill className='visit'>
       <VisitHeader />
@@ -26,7 +30,11 @@ function Visit(props) {
             gatewayUrl='https://v1.liveswitch.fm:8443/sync' //'https://stage-liveswitch.on.novarihealth.net:8443/sync'
             applicationId='my-app-id'
             userId='01010101-0101-0101-0101-010101010101'>
-            <Channel channelId={params.visitId} />
+            <Channel
+              channelId={params.visitId}
+              sessionType={sessionType}
+              role={role}
+            />
           </ClientComponent>
           <LocalMedia 
             videoConfig = {new fmLiveswitch.VideoConfig(800, 600, 15)}>

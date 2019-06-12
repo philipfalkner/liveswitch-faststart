@@ -25,9 +25,9 @@ export const stoppedLocalMedia = () => {
   }
 }
 
-export const openSfuUpstream = (channelId) => {
+export const openUpstream = (channelId) => {
   return {
-    type: constants.OPEN_SFU_UPSTREAM_CONNECTION,
+    type: constants.OPEN_UPSTREAM_CONNECTION,
     payload: channelId
   }
 }
