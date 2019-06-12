@@ -14,9 +14,11 @@ function Layout(props) {
       </Stack>
       <Stack horizontal verticalFill>
         <Stack vertical>
+          <div>Remote</div>
           {renderRemoteMedias(props)}
         </Stack>
         <Stack vertical>
+          <div>Local</div>
           <div ref={nodeElement => (nodeElement && props.localMedia && nodeElement.appendChild(props.localMedia.getView()))}></div>
         </Stack>
       </Stack>
@@ -33,6 +35,7 @@ function renderRemoteMedias(props) {
       {remoteMedias && remoteMedias.map((remoteMedia, i) => {
         return (
           <Stack.Item grow key={i}>
+            <div>Id: {remoteMedia.mediaObject.getId()}</div>
             <div
               ref={nodeElement => (nodeElement && remoteMedia && remoteMedia.mediaObject && nodeElement.appendChild(remoteMedia.mediaObject.getView()))}
             />
