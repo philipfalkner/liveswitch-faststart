@@ -32,10 +32,8 @@ function renderRemoteMedias(props) {
     <div>
       {remoteMedias && remoteMedias.map((remoteMedia, i) => {
         return (
-          <Stack.Item grow>
-            test
+          <Stack.Item grow key={i}>
             <div style={{overflow: 'auto', border: '1px black'}}
-              key={i}
               ref={nodeElement => (nodeElement && remoteMedia && remoteMedia.mediaObject && nodeElement.appendChild(remoteMedia.mediaObject.getView()))}
             />
           </Stack.Item>
