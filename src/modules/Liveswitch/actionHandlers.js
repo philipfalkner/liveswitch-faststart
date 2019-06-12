@@ -94,6 +94,25 @@ const actionHandlers = {
 
     newState.channels[channelId].remoteMedias && delete newState.channels[channelId].remoteMedias[remoteMediaId]
     return newState
+  },
+  [constants.SEND_MESSAGE]: (state, action) => {
+    const channelId = action.payload.channelId
+    const message = action.payload.message
+    const userId = action.payload.userId
+
+    return {
+      ...state,
+      channels: {
+        ...state.channels,
+        [channelId]: {
+          ...state.channels[channelId],
+          message: {
+            messageText: message,
+            userId: userId
+          }
+        }
+      }
+    }
   }
 }
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Stack } from 'office-ui-fabric-react/lib-commonjs/Stack'
+import { Stack, StackItem } from 'office-ui-fabric-react/lib-commonjs/Stack'
 import './layout.scss'
 
 function Layout(props) {
@@ -10,6 +10,12 @@ function Layout(props) {
         <Stack.Item>
           <button onClick={() => { props.openSfuUpstream(props.channelId) }}>Send SFU Upstream</button>
           <button onClick={() => { props.closeAllConnections(props.channelId) }}>Close Connections</button>
+        </Stack.Item>
+      </Stack>
+      <Stack>
+        <Stack.Item>
+          <textarea></textarea>
+          <button onClick={() => props.sendMessage(props.channelId, "Hello!!! This is a message")}>Send Message</button>
         </Stack.Item>
       </Stack>
       <Stack horizontal verticalFill>

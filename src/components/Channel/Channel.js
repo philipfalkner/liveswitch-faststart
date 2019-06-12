@@ -40,6 +40,18 @@ class Channel extends Component {
       }
     }
 
+    let prevMessage = null
+    if (prevProps.channels[channelId] && prevProps.channels[channelId].message) {
+      prevMessage = prevProps.channels[channelId].message
+    }
+    let message = null
+    if (channels[channelId] && channels[channelId].message) {
+      message = channels[channelId].message
+    }
+    if (prevMessage !== message) {
+      this.sendMessage(message.messageText, message.userId)
+    }
+
     let prevShouldConnect = null
     if (prevProps.channels[channelId] && prevProps.channels[channelId].shouldConnect) {
       prevShouldConnect = prevProps.channels[channelId].shouldConnect
@@ -48,7 +60,6 @@ class Channel extends Component {
     if (channels[channelId] && channels[channelId].shouldConnect) {
       shouldConnect = channels[channelId].shouldConnect
     }
-    
     if (prevShouldConnect != shouldConnect) {
       if (shouldConnect === true) {
         this.openSfuUpStreamConnection()
@@ -134,8 +145,8 @@ class Channel extends Component {
     this.downstreamConnections = {};
   }
 
-  onMessage(message) {
-    console.log('onMessage', message)
+  onMessage(clientInfo, message) {
+    console.log('onMessage', clientInfo, message)
   }
 
   onRemoteClientJoin(remoteClientInfo) {
@@ -370,6 +381,19 @@ class Channel extends Component {
 
     // Open the connection.
     connection.open();
+
+  }
+
+  sendMessage(message, userId){
+    //message the channel
+    if (!userId)
+    {
+      this.state.channel.sendMessage(message)
+    }
+    //message a user
+    else{
+      this.state.channel.sendUserMessage(userId, message)
+    }
 
   }
 

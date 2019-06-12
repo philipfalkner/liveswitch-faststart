@@ -58,3 +58,14 @@ export const removeRemoteMedia = (channelId, remoteMediaId) => {
     }
   }
 }
+
+export const sendMessage = (channelId, message, userId) => {
+  return {
+    type: constants.SEND_MESSAGE,
+    payload: {
+      channelId: channelId,
+      message: message,
+      userId: userId
+    }
+  }
+}
