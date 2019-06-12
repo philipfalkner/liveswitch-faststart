@@ -55,11 +55,11 @@ class Channel extends Component {
     }
 
     let prevShouldConnect = null
-    if (prevProps.channels[channelId] && prevProps.channels[channelId].shouldConnect) {
+    if (prevProps.channels[channelId]) {
       prevShouldConnect = prevProps.channels[channelId].shouldConnect
     }
     let shouldConnect = null
-    if (channels[channelId] && channels[channelId].shouldConnect) {
+    if (channels[channelId]) {
       shouldConnect = channels[channelId].shouldConnect
     }
     if (prevShouldConnect !== shouldConnect) {
