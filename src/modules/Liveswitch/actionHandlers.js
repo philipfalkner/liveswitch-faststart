@@ -42,6 +42,19 @@ const actionHandlers = {
       }
     }
   },
+  [constants.CLOSE_ALL_CONNECTIONS]: (state, action) => {
+    const channelId = action.payload
+
+    let newState = { ...state }
+    let newChannels = { ...newState.channels }
+    let newChannel = { ...newChannels[channelId] }
+
+    newChannel.shouldConnect = false
+
+    newChannels[channelId] = newChannel
+    newState.channels = newChannels
+    return newState
+  },
   [constants.ADD_REMOTE_MEDIA]: (state, action) => {
     const channelId = action.payload.channelId
     const remoteMedia = action.payload.remoteMedia

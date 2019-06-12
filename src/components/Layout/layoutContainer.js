@@ -1,9 +1,10 @@
 import { connect } from 'react-redux'
 import Layout from './layout'
-import { openSfuUpstream } from '../../modules/Liveswitch/actions'
+import { openSfuUpstream, closeAllConnections } from '../../modules/Liveswitch/actions'
 
 const mapDispatchToProps = {
-    openSfuUpstream
+    openSfuUpstream,
+    closeAllConnections
 }
 
 const mapStateToProps = (state) => ({

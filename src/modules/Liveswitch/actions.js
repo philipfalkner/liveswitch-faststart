@@ -32,6 +32,13 @@ export const openSfuUpstream = (channelId) => {
   }
 }
 
+export const closeAllConnections = (channelId) => {
+  return {
+    type: constants.CLOSE_ALL_CONNECTIONS,
+    payload: channelId
+  }
+}
+
 export const addRemoteMedia = (channelId, remoteMedia) => {
   return {
     type: constants.ADD_REMOTE_MEDIA,

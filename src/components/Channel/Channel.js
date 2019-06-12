@@ -52,6 +52,8 @@ class Channel extends Component {
     if (prevShouldConnect != shouldConnect) {
       if (shouldConnect === true) {
         this.openSfuUpStreamConnection()
+      } else {
+        this.closeAllConnections()
       }
     }
   }
@@ -103,7 +105,8 @@ class Channel extends Component {
       })
   }
 
-  leaveChannel(client, channelId) {
+  leaveChannel(client, channelId) { // TODO should also be called when window unloads
+    this.closeAllConnections();
     client.leave(channelId).then((channel) => {
       this.setState({ channel: null })
       fmLiveswitch.Log.info(`Left channel ${channelId}`)
@@ -113,12 +116,43 @@ class Channel extends Component {
       })
   }
 
+  closeAllConnections(){
+    //upstreams
+
+    for (var connectionId in this.upstreamConnections) {
+      let connection = this.upstreamConnections[connectionId]
+      connection.rawObject.close();
+    }    
+
+    //downstreams
+    for (var connectionId in this.downstreamConnections) {
+      let connection = this.downstreamConnections[connectionId]
+      connection.rawObject.close();
+    }
+
+    this.upstreamConnections = {};
+    this.downstreamConnections = {};
+  }
+
   onMessage(message) {
     console.log('onMessage', message)
   }
 
   onRemoteClientJoin(remoteClientInfo) {
     console.log('onRemoteClientJoin', remoteClientInfo)
+  }
+
+  isSfuUpStreamConnectionOpen(){
+    var isSfuUpStreamConnectionOpen = false;
+    for (var connectionId in this.upstreamConnections) {
+      let connection = this.upstreamConnections[connectionId]
+      if (connection.type === "sfu") {
+        isSfuUpStreamConnectionOpen = true;
+        break;
+      }
+    }
+
+    return isSfuUpStreamConnectionOpen;
   }
 
   onRemoteUpstreamConnectionOpen(remoteConnectionInfo) {
@@ -246,6 +280,14 @@ class Channel extends Component {
     }
     else
       console.log("Local Media null, we will not send an upstream");
+  }
+
+  closeUpStreamConnection(connectionId){
+    var connection = this.upstreamConnections[connection.getId()]
+    if (connection !== null)
+      connection.rawObject.close();
+
+    delete this.upstreamConnections[connection.getId()];
   }
 
   openSfuDownStreamConnection (remoteConnectionInfo, tag){

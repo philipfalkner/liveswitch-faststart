@@ -80,7 +80,7 @@ class ClientComponent extends Component {
     if (this.client != null) {
       //this.unRegistering = true
       // Unregister with the server.
-      return this.client.unregister().then(() => {
+      return this.client.unregister().then(() => { // TODO should also be called when window unloads
         //clientUnregistered()
         fmLiveswitch.Log.info("Disconnected from gateway")
       }).fail(() => {

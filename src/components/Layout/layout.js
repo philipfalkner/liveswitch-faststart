@@ -10,6 +10,12 @@ function Layout(props) {
           <button onClick={() => { props.openSfuUpstream(props.channelId) }}>Send SFU Upstream</button>
           {renderRemoteMedias(props)}
         </Stack.Item>
+
+        <Stack.Item grow>
+          {/* <button onClick={() => { props.closeUpstreamConnection(props.channelId) }}>Close SFU Upstream</button> */}
+          <button onClick={() => { props.closeAllConnections(props.channelId) }}>Close Connections</button>
+          {renderRemoteMedias(props)}
+        </Stack.Item>        
       </Stack>
     </Stack>
   )
