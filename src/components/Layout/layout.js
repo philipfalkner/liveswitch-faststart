@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Stack, StackItem } from 'office-ui-fabric-react/lib-commonjs/Stack'
+import withLocalMedia from '../LocalMedia'
+import { Stack } from 'office-ui-fabric-react/lib-commonjs/Stack'
 import './layout.scss'
 
 function Layout(props) {
@@ -9,12 +10,13 @@ function Layout(props) {
       <Stack horizontal>
         <Stack.Item>
           <button onClick={() => { props.openUpstream(props.channelId) }}>Send Upstream</button>
+        </Stack.Item>
+        <Stack.Item>
           <button onClick={() => { props.closeAllConnections(props.channelId) }}>Close Connections</button>
         </Stack.Item>
       </Stack>
-      <Stack>
+      <Stack vertical>
         <Stack.Item>
-          <textarea></textarea>
           <button onClick={() => props.sendMessage(props.channelId, "Hello!!! This is a message")}>Send Message</button>
         </Stack.Item>
       </Stack>
@@ -61,4 +63,4 @@ Layout.propTypes = {
 Layout.defaultProps = {
 }
 
-export default Layout
+export default withLocalMedia(Layout)

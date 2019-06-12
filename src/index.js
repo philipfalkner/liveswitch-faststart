@@ -5,6 +5,8 @@ import { Provider } from 'react-redux'
 import App from './components/App'
 import { Customizer } from 'office-ui-fabric-react'
 import { FluentCustomizations } from '@uifabric/fluent-theme'
+import LocalMediaContext from './contexts/LocalMediaContext'
+import LocalMediaClient from './clients/LocalMediaClient'
 import './i18n'
 import createStore from './store/createStore'
 import * as serviceWorker from './serviceWorker'
@@ -12,12 +14,15 @@ import './index.scss'
 
 const initialState = window.__INITIAL_STATE__
 const store = createStore(initialState)
+const localMedia = new LocalMediaClient()
 
 ReactDOM.render((
   <BrowserRouter>
     <Provider store={store}>
       <Customizer {...FluentCustomizations}>
-        <App />
+        <LocalMediaContext.Provider value={localMedia}>
+          <App />
+        </LocalMediaContext.Provider>
       </Customizer>
     </Provider>
   </BrowserRouter>
