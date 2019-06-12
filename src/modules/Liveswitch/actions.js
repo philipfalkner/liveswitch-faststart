@@ -48,3 +48,13 @@ export const addRemoteMedia = (channelId, remoteMedia) => {
     }
   }
 }
+
+export const removeRemoteMedia = (channelId, remoteMediaId) => {
+  return {
+    type: constants.REMOVE_REMOTE_MEDIA,
+    payload: {
+      channelId: channelId,
+      remoteMediaId: remoteMediaId
+    }
+  }
+}

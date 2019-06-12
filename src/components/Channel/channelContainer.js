@@ -1,11 +1,12 @@
 import { connect } from 'react-redux'
 import Channel from './Channel'
-import { startLocalMedia, stopLocalMedia, addRemoteMedia } from '../../modules/Liveswitch/actions'
+import { startLocalMedia, stopLocalMedia, addRemoteMedia, removeRemoteMedia } from '../../modules/Liveswitch/actions'
 
 const mapDispatchToProps = {
   startLocalMedia,
   stopLocalMedia,
-  addRemoteMedia
+  addRemoteMedia,
+  removeRemoteMedia
 }
 
 const mapStateToProps = (state) => ({

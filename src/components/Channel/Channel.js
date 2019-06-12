@@ -291,7 +291,7 @@ class Channel extends Component {
   }
 
   openSfuDownStreamConnection (remoteConnectionInfo, tag){
-    const { channelId, localMedia, addRemoteMedia } = this.props
+    const { channelId, localMedia, addRemoteMedia, removeRemoteMedia } = this.props
     const { channel } = this.state
 
     const _this = this
@@ -351,6 +351,7 @@ class Channel extends Component {
       if (connection.getState() == fmLiveswitch.ConnectionState.Closing ||
         connection.getState() == fmLiveswitch.ConnectionState.Failing) {
 
+        removeRemoteMedia(channelId, remoteMedia.getId())
         remoteMedia.destroy();
         delete _this.downstreamConnections[connection.getId()];
       }

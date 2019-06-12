@@ -74,6 +74,26 @@ const actionHandlers = {
         }
       }
     }
+  },
+  [constants.REMOVE_REMOTE_MEDIA]: (state, action) => {
+    const channelId = action.payload.channelId
+    const remoteMediaId = action.payload.remoteMediaId
+
+    let newState = {
+      ...state,
+      channels: {
+        ...state.channels,
+        [channelId]: {
+          ...state.channels[channelId],
+          remoteMedias: {
+            ...(state.channels[channelId] && state.channels[channelId].remoteMedias)
+          }
+        }
+      }
+    }
+
+    newState.channels[channelId].remoteMedias && delete newState.channels[channelId].remoteMedias[remoteMediaId]
+    return newState
   }
 }
 
