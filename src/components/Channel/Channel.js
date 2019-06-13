@@ -1,31 +1,24 @@
 import { Component } from 'react'
 import PropTypes from 'prop-types'
-import withLocalMedia from '../LocalMedia'
 import fmLiveswitch from 'fm.liveswitch'
-import { sessionType, connectionType, participantRole } from '../../helpers/sessionHelper'
+import withLocalMedia from '../LocalMedia'
+import Connection, { TransportType, Direction } from './Connection'
+import { sessionType, participantRole } from '../../helpers/sessionHelper'
+import { generateGuid } from '../../helpers/guidHelpers'
 
 class Channel extends Component {
-  constructor(props) {
+  constructor (props) {
     super(props)
 
     this._isMounted = false
-
-    this.iceServers = [
-      new fmLiveswitch.IceServer('stun:turn.frozenmountain.com:3478'),
-      new fmLiveswitch.IceServer('turn:turn.frozenmountain.com:80', 'test', 'pa55w0rd!'),
-      new fmLiveswitch.IceServer('turns:turn.frozenmountain.com:443', 'test', 'pa55w0rd!')
-    ];
-
-    this.localMediaStarted = false // TODO make this unnecessary by tying local media to the connection's lifecycle
-    this.upstreamConnections = {}
-    this.downstreamConnections = {}
+    this.connections = []
 
     this.state = {
       channel: null
     }
   }
 
-  componentDidMount() {
+  componentDidMount () {
     const { client, channelId } = this.props
 
     this._isMounted = true
@@ -35,7 +28,7 @@ class Channel extends Component {
     }
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate (prevProps) {
     const { client, channelId, channels } = this.props
 
     if (prevProps.client !== client || prevProps.channelId !== channelId) {
@@ -70,31 +63,27 @@ class Channel extends Component {
     if (prevShouldConnect !== shouldConnect) {
       if (shouldConnect === true) {
         this.openCorrectTypeOfUpstreamConnection()
-      } else {
+      } else if (prevShouldConnect && !shouldConnect) {
         this.closeAllConnections()
       }
     }
   }
 
-  componentWillUnmount() {
-    const { client, channelId, localMedia } = this.props
+  componentWillUnmount () {
+    const { client, channelId } = this.props
 
     this._isMounted = false
 
     if (client !== null && channelId !== null) {
       this.leaveChannel(client, channelId)
     }
-
-    if (this.localMediaStarted) {
-      localMedia.stop()
-    }
   }
 
-  render() {
+  render () {
     return null
   }
 
-  joinChannel(client, channelId) {
+  joinChannel (client, channelId) {
     var token = fmLiveswitch.Token.generateClientJoinToken(
       client.getApplicationId(),
       client.getUserId(),
@@ -122,18 +111,18 @@ class Channel extends Component {
       fmLiveswitch.Log.info(`Joined channel ${channelId}`)
 
       //look at session type to figure out what to send
-      console.log("Ready to send upstream")
-      console.log("Session Type:", this.props.sessionType)
+      console.log('Session Type:', this.props.sessionType)
 
       //open upstream connection the moment we join the channel
-      this.openCorrectTypeOfUpstreamConnection()
+      console.log('Ready to send upstream')
+      // this.openCorrectTypeOfUpstreamConnection()
     },
       (ex) => {
         fmLiveswitch.Log.error(`Failed to join channel ${channelId}`, ex)
       })
   }
 
-  leaveChannel(client, channelId) { // TODO should also be called when window unloads
+  leaveChannel (client, channelId) { // TODO should also be called when window unloads
     this.closeAllConnections();
     client.leave(channelId).then((channel) => {
       this._isMounted && this.setState({ channel: null })
@@ -144,23 +133,56 @@ class Channel extends Component {
       })
   }
 
-  openCorrectTypeOfUpstreamConnection() {
+  createConnection (transportType, direction, connectionInfo) {
+    const { localMedia, addRemoteMedia, removeRemoteMedia } = this.props
+    const { channel } = this.state
+
+    let newConnection = new Connection({
+      id: generateGuid(),
+      channel: channel,
+      transportType: transportType,
+      direction: direction,
+      connectionInfo: connectionInfo,
+      onDisconnect: this.removeConnection.bind(this),
+      localMedia: localMedia,
+      addRemoteMedia: addRemoteMedia,
+      removeRemoteMedia: removeRemoteMedia
+    })
+    newConnection.connect()
+    this.connections = [...this.connections, newConnection]
+  }
+
+  removeConnection (id, connection) {
+    let foundConnection = this.connections.find((connection) => {
+      return connection.id === id
+    })
+
+    if (foundConnection !== null) {
+      foundConnection.disconnect()
+      let newConnections = this.connections.filter(e => e !== foundConnection)
+  
+      this.connections = newConnections
+    } else {
+      console.warn('Can\'t remove unknown connection id', id)
+    }
+  }
+
+  openCorrectTypeOfUpstreamConnection () {
     switch (this.props.sessionType) {
       case sessionType.private:
         //depending on number of users pre-assigned to this session, we start a SFU or MCU upstream
         if (true) {
           console.log("Opening SFU upstream")
-          this.openUpStreamConnection(sessionType.sfu);
-        }
-        else {
+          this.createConnection(TransportType.sfu, Direction.upstream)
+        } else {
           console.log("Opening MCU upstream")
-          this.openUpStreamConnection(sessionType.mcu);
+          this.createConnection(TransportType.mcu, Direction.upstream)
         }
         break;
 
       case sessionType.public:
         console.log("Opening MCU upstream")
-        this.openUpStreamConnection(sessionType.mcu);
+        this.createConnection(TransportType.mcu, Direction.upstream)
         break;
 
       case sessionType.presentation:
@@ -169,13 +191,11 @@ class Channel extends Component {
         console.log("role: ", this.props.role)
         if (this.props.role === participantRole.presenter) {
           console.log("Opening SFU upstream")
-          this.openUpStreamConnection(sessionType.sfu);
-        }
-        else if (this.props.role === participantRole.student) {
+          this.createConnection(TransportType.sfu, Direction.upstream)
+        } else if (this.props.role === participantRole.student) {
           console.log("Opening MCU upstream")
-          this.openUpStreamConnection(sessionType.mcu);
-        }
-        else {
+          this.createConnection(TransportType.mcu, Direction.upstream)
+        } else {
           console.log("Invalid role");
         }
         break;
@@ -185,287 +205,71 @@ class Channel extends Component {
     }
   }
 
-  closeAllConnections() {
-    //upstreams
-    Object.values(this.upstreamConnections).forEach((connection) => {
-      connection.rawObject.close();
-    })
-    this.upstreamConnections = {};
-
-    //downstreams
-    Object.values(this.downstreamConnections).forEach((connection) => {
-      connection.rawObject.close();
-    })
-    this.downstreamConnections = {};
+  closeAllConnections () {
+    this.connections.forEach((connection) => connection.disconnect())
+    this.connections = []
   }
 
-  onMessage(clientInfo, message) {
-    console.log('onMessage', clientInfo, message)
-  }
-
-  onRemoteClientJoin(remoteClientInfo) {
-    console.log('onRemoteClientJoin', remoteClientInfo)
-  }
-
-  isSfuUpStreamConnectionOpen() {
-    var isSfuUpStreamConnectionOpen = false;
-    for (var connectionId in this.upstreamConnections) {
-      let connection = this.upstreamConnections[connectionId]
-      if (connection.type === "sfu") {
-        isSfuUpStreamConnectionOpen = true;
-        break;
-      }
-    }
+  isSfuUpStreamConnectionOpen () {
+    var isSfuUpStreamConnectionOpen = !!(this.connections.find((connection) => {
+      return connection.props.transportType === TransportType.sfu && connection.props.direction === Direction.upstream
+    }));
 
     return isSfuUpStreamConnectionOpen;
   }
 
-  onRemoteUpstreamConnectionOpen(remoteConnectionInfo) {
-    this.openSfuDownStreamConnection(remoteConnectionInfo)
+  sendMessage (message, userId) {
+    if (!userId) {
+      this.state.channel.sendMessage(message)
+    } else {
+      this.state.channel.sendUserMessage(userId, message)
+    }
+  }
+
+  onMessage (clientInfo, message) {
+    console.log('onMessage', 'TODO', clientInfo, message)
+  }
+
+  onRemoteClientJoin (remoteClientInfo) {
+    console.log('onRemoteClientJoin', 'TODO', remoteClientInfo)
+  }
+
+  onRemoteUpstreamConnectionOpen (remoteConnectionInfo) {
+    console.log('onRemoteUpstreamConnectionOpen', remoteConnectionInfo)
+    this.createConnection(TransportType.sfu, Direction.downstream, remoteConnectionInfo)
 
     //check do we have a upstream connection open
     //for sfu -> sfu
     //for mcu -> sfu
 
-    var isSfuUpStreamConnectionOpen = false;
-    for (var connectionId in this.upstreamConnections) {
-      let connection = this.upstreamConnections[connectionId]
-      if (connection.type === "sfu") {
-        isSfuUpStreamConnectionOpen = true;
-        break;
-      }
-    }
-
-    var isMcuUpStreamConnectionOpen = false;
-    for (var connectionId in this.upstreamConnections) {
-      let connection = this.upstreamConnections[connectionId]
-      if (connection.type === "mcu") {
-        isMcuUpStreamConnectionOpen = true;
-        break;
-      }
-    }
-
     if (remoteConnectionInfo.getType() === "sfu") {
-      if (isSfuUpStreamConnectionOpen === false) {
-
-        console.log('starting localMedia', this.props.localMedia)
-        this.props.localMedia.start().then(() => {
-          this.localMediaStarted = true
-          this.openSfuUpStreamConnection();
-        },
-        (ex) => {
-          console.log('failed to prepare local media for upstream connection', ex)
-        })
+      if (this.isSfuUpStreamConnectionOpen() === false) {
+        this.createConnection(TransportType.sfu, Direction.upstream)
       }
+    } else if (remoteConnectionInfo.getType() === "mcu") {
+      console.log('onRemoteUpstreamConnectionOpen: MCU not yet implemented')
     }
+
+    // var isMcuUpStreamConnectionOpen = false;
+    // for (var connectionId in this.upstreamConnections) {
+    //   let connection = this.upstreamConnections[connectionId]
+    //   if (connection.type === "mcu") {
+    //     isMcuUpStreamConnectionOpen = true;
+    //     break;
+    //   }
+    // }
   }
 
-  onRemoteUpstreamConnectionClose(remoteConnectionInfo) {
-    console.log('onRemoteUpstreamConnectionClose', remoteConnectionInfo)
+  onRemoteUpstreamConnectionClose (remoteConnectionInfo) {
+    console.log('onRemoteUpstreamConnectionClose', 'TODO', remoteConnectionInfo)
   }
 
-  onPeerConnectionOffer(peerConnectionOffer) {
+  onPeerConnectionOffer (peerConnectionOffer) {
     console.log('onPeerConnectionOffer', 'not implemented')
-    // Not implemented
   }
-
-  openUpStreamConnection(requestedConnectionType, tag) {
-    const { localMedia } = this.props
-    const { channel } = this.state
-
-    const _this = this
-
-    localMedia.start().then(() => {
-      this.localMediaStarted = true
-
-      const rawLocalMedia = localMedia.getRawLocalMedia()
-      var connection = null;
-      var dataChannel = null;
-      var dataChannelsSupported = false;
-      var dataStream = null;
-
-      if (dataChannelsSupported) {
-        // dataChannel = this.prepareDataChannel();
-        // dataStream = new fmLiveswitch.DataStream(dataChannel);
-        // this.dataChannels.push(dataChannel);
-      }
-      else {
-        dataStream = null;
-      }
-
-      var audioStream = null;
-      var videoStream = null;
-
-      //check to make sure that localMedia has audio and video
-      if (rawLocalMedia.getAudioTrack() !== null)
-        audioStream = new fmLiveswitch.AudioStream(rawLocalMedia);
-
-      if (rawLocalMedia.getVideoTrack() !== null)
-        videoStream = new fmLiveswitch.VideoStream(rawLocalMedia);
-
-      if (requestedConnectionType === connectionType.sfu)
-        connection = channel.createSfuUpstreamConnection(audioStream, videoStream, dataStream);
-      else
-        //what method must be invoked to open mcu upstream connection
-        connection = channel.createMcuConnection(audioStream, videoStream, dataStream);
-
-      if (tag)
-        connection.setTag(tag);
-      else
-        connection.setTag(channel.getId());
-
-      connection.setIceServers(this.iceServers);
-
-      //event handlers
-      connection.addOnStateChange((connection) => {
-        console.log("Upstream Connection state: " + connection.getState());
-
-        fmLiveswitch.Log.info(connection.getId() + ': SFU upstream connection state is ' +
-          new fmLiveswitch.ConnectionStateWrapper(connection.getState()).toString() + '.');
-
-        // Cleanup if the connection closes or fails.
-        if (connection.getState() == fmLiveswitch.ConnectionState.Closing ||
-          connection.getState() == fmLiveswitch.ConnectionState.Failing) {
-
-          if (connection.getRemoteClosed()) {
-            fmLiveswitch.Log.info(connection.getId() + ': Media server closed the connection.');
-          }
-          //this.logConnectionState(connection, "SFU Upstream");
-          // if (dataChannelsSupported) {
-          //     dataChannels = dataChannels.filter(element => element !== dataChannel);
-          //}
-
-          delete _this.upstreamConnections[connection.getId()];
-        }
-        else if (connection.getState() == fmLiveswitch.ConnectionState.Failed) {
-          // Note: no need to close the connection as it's done for us.
-          _this.openUpstreamConnection(requestedConnectionType, tag);
-          //this.logConnectionState(connection, "SFU Upstream");
-        }
-        else if (connection.getState() == fmLiveswitch.ConnectionState.Connected) {
-          _this.upstreamConnections[connection.getId()] = {
-            rawObject: connection,
-            type: connection.getType()
-          }
-          //this.logConnectionState(connection, "SFU Upstream");
-        }
-      });
-
-      connection.open();
-    },
-    (ex) => {
-      console.log('Local Media failed, we will not send an upstream');
-    })
-  }
-
-  closeUpStreamConnection(connectionId) {
-    var connection = this.upstreamConnections[connectionId]
-    if (connection !== null)
-      connection.rawObject.close();
-
-    delete this.upstreamConnections[connectionId];
-  }
-
-  openSfuDownStreamConnection(remoteConnectionInfo, tag) {
-    const { channelId, addRemoteMedia, removeRemoteMedia } = this.props
-    const rawLocalMedia = this.props.localMedia && this.props.localMedia.getRawLocalMedia()
-    const { channel } = this.state
-
-    const _this = this
-
-    // Create remote media to manage incoming media.
-    var remoteMedia = new fmLiveswitch.RemoteMedia();
-    remoteMedia.setAudioMuted(false);
-    remoteMedia.setVideoMuted(false);
-
-    // Add the remote video view to the layout.
-    if (remoteMedia.getView()) {
-      remoteMedia.getView().id = 'remoteView_' + remoteMedia.getId();
-    }
-    //this.layoutManager.addRemoteView(remoteMedia.getId(), remoteMedia.getView());
-
-    var connection = null;
-    var dataChannel = null;
-    var dataChannelsSupported = false;
-    var dataStream = null;
-
-    if (this.dataChannelsSupported && remoteConnectionInfo.getHasData() != null) {
-      //dataChannel = this.prepareDataChannel();
-      //dataStream = new fmLiveswitch.DataStream(dataChannel);
-    }
-
-    var audioStream = null;
-    var videoStream = null;
-
-    if (remoteConnectionInfo.getHasAudio()) {
-      audioStream = new fmLiveswitch.AudioStream(rawLocalMedia, remoteMedia);
-    }
-
-    if (remoteConnectionInfo.getHasVideo() && !this.audioOnly) {
-      videoStream = new fmLiveswitch.VideoStream(rawLocalMedia, remoteMedia);
-    }
-
-    connection = channel.createSfuDownstreamConnection(remoteConnectionInfo, audioStream, videoStream, dataStream);
-
-    if (tag)
-      connection.setTag(tag);
-    else
-      connection.setTag(channel.getId());
-
-    //this.sfuDownstreamConnections[connection.getId()] = connection;
-
-    // Configure the connection.
-    connection.setIceServers(this.iceServers);
-
-    // Monitor the connection state changes.
-    connection.addOnStateChange((connection) => {
-      console.log("Downstream Connection state: " + connection.getState());
-
-      // fmLiveswitch.Log.info(connection.getId() + ': SFU downstream connection state is ' +
-      //   new fmLiveswitch.ConnectionStateWrapper(connection.getState()).toString() + '.');
-
-      // Cleanup if the connection closes or fails.
-      if (connection.getState() == fmLiveswitch.ConnectionState.Closing ||
-        connection.getState() == fmLiveswitch.ConnectionState.Failing) {
-
-        removeRemoteMedia(channelId, remoteMedia.getId())
-        remoteMedia.destroy();
-        delete _this.downstreamConnections[connection.getId()];
-      }
-      else if (connection.getState() == fmLiveswitch.ConnectionState.Failed) {
-        // Note: no need to close the connection as it's done for us.
-        this.openSfuDownStreamConnection(remoteConnectionInfo, tag);
-      }
-      else if (connection.getState() == fmLiveswitch.ConnectionState.Connected) {
-        _this.downstreamConnections[connection.getId()] = {
-          rawObject: connection,
-          type: connection.getType()
-        }
-        addRemoteMedia(channelId, remoteMedia)
-      }
-    });
-
-    // Open the connection.
-    connection.open();
-
-  }
-
-  sendMessage(message, userId) {
-    //message the channel
-    if (!userId) {
-      this.state.channel.sendMessage(message)
-    }
-    //message a user
-    else {
-      this.state.channel.sendUserMessage(userId, message)
-    }
-
-  }
-
 }
 
 Channel.propTypes = {
-  localMedia: PropTypes.object,
   client: PropTypes.object,
   channelId: PropTypes.string
 }
