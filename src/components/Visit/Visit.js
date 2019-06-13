@@ -20,7 +20,7 @@ class Visit extends Component {
     const { params } = this.props.match
     const { search } = this.props.location
     const { isInChannel } = this.state
-    const { sessionType, role } = querystring.parse(search.substring(1))
+    const { sessionType, role, userId } = querystring.parse(search.substring(1))
 
     return (
       <Stack verticalFill className='visit'>
@@ -34,7 +34,7 @@ class Visit extends Component {
             <ClientComponent
               gatewayUrl='https://v1.liveswitch.fm:8443/sync' //'https://stage-liveswitch.on.novarihealth.net:8443/sync'
               applicationId='my-app-id'
-              userId='01010101-0101-0101-0101-010101010101'>
+              userId={userId}>
               {isInChannel && <Channel
                 channelId={params.visitId}
                 sessionType={sessionType}
