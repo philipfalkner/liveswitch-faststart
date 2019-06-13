@@ -236,7 +236,7 @@ class Connection {
       if (connection.getState() == fmLiveswitch.ConnectionState.Closing ||
         connection.getState() == fmLiveswitch.ConnectionState.Failing) {
 
-        removeRemoteMedia(channelId, remoteMedia.getId())
+        removeRemoteMedia(remoteMedia)
         remoteMedia.destroy();
         onDisconnect(_this.props.id, _this)
       }
@@ -246,7 +246,7 @@ class Connection {
       }
       else if (connection.getState() == fmLiveswitch.ConnectionState.Connected) {
         onConnect(_this.props.id, _this)
-        addRemoteMedia(channelId, remoteMedia)
+        addRemoteMedia(remoteMedia)
       }
     });
 
@@ -325,7 +325,7 @@ class Connection {
             fmLiveswitch.Log.info(`${connection.getId()}: Media server closed the connection.`);
           }
 
-          removeRemoteMedia(channelId, remoteMedia.getId())
+          removeRemoteMedia(remoteMedia)
           remoteMedia.destroy();
 
           //this.logConnectionState(connection, "SFU Upstream");
@@ -342,7 +342,7 @@ class Connection {
         else if (connection.getState() == fmLiveswitch.ConnectionState.Connected) {
           //this.logConnectionState(connection, "SFU Upstream");
           onConnect(_this.props.id, _this);
-          addRemoteMedia(channelId, remoteMedia)
+          addRemoteMedia(remoteMedia)
         }
       });
 

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import fmLiveswitch from 'fm.liveswitch'
 import withLocalMedia from '../LocalMedia'
 import Connection, { TransportType, Direction } from './Connection'
-import { SessionType, ParticipantRole } from '../../helpers/sessionHelper'
+import { ChannelType, ParticipantRole } from '../../helpers/sessionHelper'
 import { generateGuid } from '../../helpers/guidHelpers'
 
 class Channel extends Component {
@@ -29,7 +29,7 @@ class Channel extends Component {
   }
 
   componentDidUpdate (prevProps) {
-    const { client, channelId, channels } = this.props
+    const { client, channelId, channels, shouldStart } = this.props
 
     if (prevProps.client !== client || prevProps.channelId !== channelId) {
       if (prevProps.client !== null) {
@@ -52,18 +52,10 @@ class Channel extends Component {
       this.sendMessage(message.messageText, message.userId)
     }
 
-    let prevShouldConnect = null
-    if (prevProps.channels[channelId]) {
-      prevShouldConnect = prevProps.channels[channelId].shouldConnect
-    }
-    let shouldConnect = null
-    if (channels[channelId]) {
-      shouldConnect = channels[channelId].shouldConnect
-    }
-    if (prevShouldConnect !== shouldConnect) {
-      if (shouldConnect === true) {
-        this.openCorrectTypeOfUpstreamConnection()
-      } else if (prevShouldConnect && !shouldConnect) {
+    if (prevProps.shouldStart !== shouldStart) {
+      if (shouldStart === true) {
+        this.openUpstream()
+      } else if (shouldStart === false) {
         this.closeAllConnections()
       }
     }
@@ -110,11 +102,11 @@ class Channel extends Component {
 
       fmLiveswitch.Log.info(`Joined channel ${channelId}`)
 
-      //look at session type to figure out what to send
-      console.log('Session Type:', this.props.sessionType)
+      //look at channel type and participant role to figure out what to send
+      console.log('Channel Type:', this.props.channelType)
+      console.log('Participant Role:', this.props.participantRole)
 
       //open upstream connection the moment we join the channel
-      console.log('Ready to send upstream')
       // this.openCorrectTypeOfUpstreamConnection()
     },
       (ex) => {
@@ -167,11 +159,11 @@ class Channel extends Component {
     }
   }
 
-  openCorrectTypeOfUpstreamConnection () {
-    const { sessionType } = this.props
+  openUpstream () {
+    const { channelType, participantRole } = this.props
 
-    switch (sessionType) {
-      case SessionType.private:
+    switch (channelType) {
+      case ChannelType.private:
         //depending on number of users pre-assigned to this session, we start a SFU or MCU upstream
         if (true) {
           console.log("Opening SFU upstream")
@@ -182,28 +174,41 @@ class Channel extends Component {
         }
         break;
 
-      case SessionType.public:
+      case ChannelType.public:
         console.log("Opening MCU duplex")
         this.createConnection(TransportType.mcu, Direction.duplex)
         break;
 
-      case SessionType.presentation:
-        //if presenter then upstream is sfu
-        //if student then upstream is mcu
-        console.log("role: ", this.props.role)
-        if (this.props.role === ParticipantRole.presenter) {
-          console.log("Opening SFU upstream")
-          this.createConnection(TransportType.sfu, Direction.upstream)
-        } else if (this.props.role === ParticipantRole.student) {
-          console.log("Opening MCU upstream")
-          this.createConnection(TransportType.mcu, Direction.upstream)
-        } else {
-          console.log("Invalid role");
+      case ChannelType.presenter:
+        switch (participantRole) {
+          case ParticipantRole.presenter:
+            console.log("Opening SFU upstream")
+            this.createConnection(TransportType.sfu, Direction.upstream)
+            break
+          case ParticipantRole.student:
+            console.log('Not opening upstream: audience doesn\'t send upstream in presenter channel')
+            break
+          default:
+            console.error('Invalid participant role', participantRole)
         }
-        break;
+        break
+      
+      case ChannelType.audience:
+        switch (participantRole) {
+          case ParticipantRole.presenter:
+            console.log('Not opening upstream: presenter doesn\'t send upstream in audience channel')
+            break
+          case ParticipantRole.student:
+            console.log("Opening MCU upstream")
+            this.createConnection(TransportType.mcu, Direction.upstream)
+            break
+          default:
+            console.error('Invalid participant role', participantRole)
+        }
+        break
 
       default:
-        console.log("Invalid session type")
+        console.error('Invalid channel type', channelType)
     }
   }
 
@@ -253,11 +258,13 @@ class Channel extends Component {
   }
 
   onRemoteUpstreamConnectionOpen (remoteConnectionInfo) {
+    const { channelType, participantRole } = this.props
+    
     console.log('onRemoteUpstreamConnectionOpen', remoteConnectionInfo)
 
-    switch (this.props.sessionType) {
-      case SessionType.private:
-      case SessionType.public:
+    switch (channelType) {
+      case ChannelType.private:
+      case ChannelType.public:
         // Just open the same type of connection we just got
         switch (remoteConnectionInfo.getType()) {
           case 'sfu':
@@ -276,27 +283,42 @@ class Channel extends Component {
             break
         }
         break
-      case SessionType.presentation:
-        //if presenter then downstream is mcu
-        //if student then downstream is sfu
-        switch (this.props.role) {
+
+      case ChannelType.presenter:
+        switch (participantRole) {
+          case ParticipantRole.presenter:
+            // Maybe do a downstream to see other presenters...?
+            console.log('Not opening downstream: presenter doesn\'t receive downstream in presenter channel')
+            break
+          case ParticipantRole.student:
+            if (this.isMcuDownstreamConnectionOpen() === false) {
+              this.createConnection(TransportType.mcu, Direction.downstream, remoteConnectionInfo)
+            }
+            break
+          default:
+            console.error('Invalid participant role', participantRole)
+            break
+        }
+        break
+
+      case ChannelType.audience:
+        switch (participantRole) {
           case ParticipantRole.presenter:
             if (this.isMcuDownstreamConnectionOpen() === false) {
               this.createConnection(TransportType.mcu, Direction.downstream, remoteConnectionInfo)
             }
             break
           case ParticipantRole.student:
-            if (remoteConnectionInfo.getType() === 'sfu') {
-              this.createConnection(TransportType.sfu, Direction.downstream, remoteConnectionInfo)
-            }
+            console.log('Not opening downstream: audience doesn\'t receive downstream in audience channel')
             break
           default:
-            console.error('Invalid role')
+            console.error('Invalid participant role', participantRole)
             break
         }
         break
+
       default:
-        console.error('Invalid session type')
+        console.error('Invalid channel type', channelType)
         break
     }    
   }
@@ -312,7 +334,9 @@ class Channel extends Component {
 
 Channel.propTypes = {
   client: PropTypes.object,
-  channelId: PropTypes.string
+  channelId: PropTypes.string,
+  channelType: PropTypes.number,
+  shouldStart: PropTypes.bool
 }
 
 Channel.defaultProps = {
