@@ -181,8 +181,8 @@ class Channel extends Component {
         break;
 
       case sessionType.public:
-        console.log("Opening MCU upstream")
-        this.createConnection(TransportType.mcu, Direction.upstream)
+        console.log("Opening MCU duplex")
+        this.createConnection(TransportType.mcu, Direction.duplex)
         break;
 
       case sessionType.presentation:
