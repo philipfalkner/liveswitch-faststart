@@ -2,6 +2,9 @@ import fmLiveswitch from 'fm.liveswitch'
 
 class LocalMediaClient {
   constructor(audioEnabled, videoConfig) {
+    if (audioEnabled === null) {
+      audioEnabled = true
+    }
     videoConfig = {
       width: 800,
       height: 600,
