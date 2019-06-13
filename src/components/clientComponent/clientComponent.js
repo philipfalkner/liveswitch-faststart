@@ -93,7 +93,7 @@ class ClientComponent extends Component {
     const { client } = this.state
 
     const childrenWithProps = React.Children.map(this.props.children, child =>
-      React.cloneElement(child, { client: client })
+      child && React.cloneElement(child, { client: client })
     );
 
     return childrenWithProps

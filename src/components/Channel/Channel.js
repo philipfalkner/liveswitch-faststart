@@ -8,12 +8,15 @@ class Channel extends Component {
   constructor(props) {
     super(props)
 
+    this._isMounted = false
+
     this.iceServers = [
       new fmLiveswitch.IceServer('stun:turn.frozenmountain.com:3478'),
       new fmLiveswitch.IceServer('turn:turn.frozenmountain.com:80', 'test', 'pa55w0rd!'),
       new fmLiveswitch.IceServer('turns:turn.frozenmountain.com:443', 'test', 'pa55w0rd!')
     ];
 
+    this.localMediaStarted = false // TODO make this unnecessary by tying local media to the connection's lifecycle
     this.upstreamConnections = {}
     this.downstreamConnections = {}
 
@@ -24,6 +27,8 @@ class Channel extends Component {
 
   componentDidMount() {
     const { client, channelId } = this.props
+
+    this._isMounted = true
 
     if (client !== null && channelId !== null) {
       this.joinChannel(client, channelId)
@@ -72,10 +77,16 @@ class Channel extends Component {
   }
 
   componentWillUnmount() {
-    const { client, channelId } = this.props
+    const { client, channelId, localMedia } = this.props
+
+    this._isMounted = false
 
     if (client !== null && channelId !== null) {
       this.leaveChannel(client, channelId)
+    }
+
+    if (this.localMediaStarted) {
+      localMedia.stop()
     }
   }
 
@@ -125,7 +136,7 @@ class Channel extends Component {
   leaveChannel(client, channelId) { // TODO should also be called when window unloads
     this.closeAllConnections();
     client.leave(channelId).then((channel) => {
-      this.setState({ channel: null })
+      this._isMounted && this.setState({ channel: null })
       fmLiveswitch.Log.info(`Left channel ${channelId}`)
     },
       (ex) => {
@@ -239,6 +250,7 @@ class Channel extends Component {
 
         console.log('starting localMedia', this.props.localMedia)
         this.props.localMedia.start().then(() => {
+          this.localMediaStarted = true
           this.openSfuUpStreamConnection();
         },
         (ex) => {
@@ -264,6 +276,8 @@ class Channel extends Component {
     const _this = this
 
     localMedia.start().then(() => {
+      this.localMediaStarted = true
+
       const rawLocalMedia = localMedia.getRawLocalMedia()
       var connection = null;
       var dataChannel = null;
@@ -345,11 +359,11 @@ class Channel extends Component {
   }
 
   closeUpStreamConnection(connectionId) {
-    var connection = this.upstreamConnections[connection.getId()]
+    var connection = this.upstreamConnections[connectionId]
     if (connection !== null)
       connection.rawObject.close();
 
-    delete this.upstreamConnections[connection.getId()];
+    delete this.upstreamConnections[connectionId];
   }
 
   openSfuDownStreamConnection(remoteConnectionInfo, tag) {

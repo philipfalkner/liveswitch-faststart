@@ -27,7 +27,9 @@ function Layout(props) {
         </Stack>
         <Stack vertical>
           <div>Local</div>
-          <div ref={nodeElement => (nodeElement && props.localMedia && nodeElement.appendChild(props.localMedia.getView()))}></div>
+          {props.localMedia &&
+            props.localMedia.isActive() &&
+            <div ref={nodeElement => (nodeElement && nodeElement.appendChild(props.localMedia.getView()))}></div>}
         </Stack>
       </Stack>
     </Stack>

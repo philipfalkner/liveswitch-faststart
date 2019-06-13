@@ -11,31 +11,49 @@ class LocalMediaClient {
     this.localMedia = new fmLiveswitch.LocalMedia(
       audioEnabled,
       new fmLiveswitch.VideoConfig(videoConfig.width, videoConfig.height, videoConfig.frameRate))
+    this.usersCount = 0
   }
 
-  start () {
+  start() {
     return this.localMedia.start().then((o) => {
       fmLiveswitch.Log.info('LocalMedia started')
+      ++(this.usersCount)
     },
-    (ex) => {
-      fmLiveswitch.Log.error('LocalMedia failed to start', ex)
-    })
+      (ex) => {
+        fmLiveswitch.Log.error('LocalMedia failed to start', ex)
+      })
   }
 
-  stop () {
-    return this.localMedia.stop().then((o) => {
-      fmLiveswitch.Log.info('LocalMedia stopped')
-    },
-    (ex) => {
-      fmLiveswitch.Log.error('LocalMedia failed to stop', ex)
-    })
+  stop() {
+    if (this.usersCount > 0) {
+      --(this.usersCount)
+    }
+
+    if (this.usersCount <= 0) {
+      return this.localMedia.stop().then((o) => {
+        fmLiveswitch.Log.info('LocalMedia stopped')
+        this.usersCount = 0
+      },
+        (ex) => {
+          fmLiveswitch.Log.error('LocalMedia failed to stop', ex)
+        })
+    }
   }
 
-  getRawLocalMedia () {
+  isActive() {
+    let currentState = this.localMedia.getState()
+    if (currentState === fmLiveswitch.LocalMediaState.Starting ||
+      currentState === fmLiveswitch.LocalMediaState.Started) {
+      return true
+    }
+    return false
+  }
+
+  getRawLocalMedia() {
     return this.localMedia
   }
-  
-  getView () {
+
+  getView() {
     return this.localMedia.getView()
   }
 }
