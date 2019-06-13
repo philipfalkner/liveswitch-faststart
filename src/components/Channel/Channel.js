@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import fmLiveswitch from 'fm.liveswitch'
 import withLocalMedia from '../LocalMedia'
 import Connection, { TransportType, Direction } from './Connection'
-import { sessionType, participantRole } from '../../helpers/sessionHelper'
+import { SessionType, ParticipantRole } from '../../helpers/sessionHelper'
 import { generateGuid } from '../../helpers/guidHelpers'
 
 class Channel extends Component {
@@ -168,8 +168,10 @@ class Channel extends Component {
   }
 
   openCorrectTypeOfUpstreamConnection () {
-    switch (this.props.sessionType) {
-      case sessionType.private:
+    const { sessionType } = this.props
+
+    switch (sessionType) {
+      case SessionType.private:
         //depending on number of users pre-assigned to this session, we start a SFU or MCU upstream
         if (true) {
           console.log("Opening SFU upstream")
@@ -180,19 +182,19 @@ class Channel extends Component {
         }
         break;
 
-      case sessionType.public:
+      case SessionType.public:
         console.log("Opening MCU duplex")
         this.createConnection(TransportType.mcu, Direction.duplex)
         break;
 
-      case sessionType.presentation:
+      case SessionType.presentation:
         //if presenter then upstream is sfu
         //if student then upstream is mcu
         console.log("role: ", this.props.role)
-        if (this.props.role === participantRole.presenter) {
+        if (this.props.role === ParticipantRole.presenter) {
           console.log("Opening SFU upstream")
           this.createConnection(TransportType.sfu, Direction.upstream)
-        } else if (this.props.role === participantRole.student) {
+        } else if (this.props.role === ParticipantRole.student) {
           console.log("Opening MCU upstream")
           this.createConnection(TransportType.mcu, Direction.upstream)
         } else {
@@ -254,8 +256,8 @@ class Channel extends Component {
     console.log('onRemoteUpstreamConnectionOpen', remoteConnectionInfo)
 
     switch (this.props.sessionType) {
-      case sessionType.private:
-      case sessionType.public:
+      case SessionType.private:
+      case SessionType.public:
         // Just open the same type of connection we just got
         switch (remoteConnectionInfo.getType()) {
           case 'sfu':
@@ -274,16 +276,16 @@ class Channel extends Component {
             break
         }
         break
-      case sessionType.presentation:
+      case SessionType.presentation:
         //if presenter then downstream is mcu
         //if student then downstream is sfu
         switch (this.props.role) {
-          case participantRole.presenter:
+          case ParticipantRole.presenter:
             if (this.isMcuDownstreamConnectionOpen() === false) {
               this.createConnection(TransportType.mcu, Direction.downstream, remoteConnectionInfo)
             }
             break
-          case participantRole.student:
+          case ParticipantRole.student:
             if (remoteConnectionInfo.getType() === 'sfu') {
               this.createConnection(TransportType.sfu, Direction.downstream, remoteConnectionInfo)
             }

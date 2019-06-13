@@ -1,5 +1,5 @@
 import fmLiveswitch from 'fm.liveswitch'
-import { connectionType } from '../../helpers/sessionHelper'
+import { ConnectionType } from '../../helpers/sessionHelper'
 
 export const TransportType = {
   p2p: 0,
@@ -42,11 +42,11 @@ class Connection {
         switch (direction) {
           case Direction.upstream:
             console.log('Opening upstream SFU connection')
-            this.openUpstreamConnection(connectionType.sfu)
+            this.openUpstreamConnection(ConnectionType.sfu)
             break
           case Direction.downstream:
             console.log('Opening downstream SFU connection')
-            this.openDownstreamConnection(connectionType.sfu, connectionInfo)
+            this.openDownstreamConnection(ConnectionType.sfu, connectionInfo)
             break
           default:
             console.error('Invalid direction for SFU', direction)
@@ -56,15 +56,15 @@ class Connection {
           switch (direction) {
             case Direction.upstream:
               console.log('Opening upstream MCU connection')
-              this.openUpstreamConnection(connectionType.mcu)
+              this.openUpstreamConnection(ConnectionType.mcu)
               break
             case Direction.downstream:
               console.log('Opening downstream MCU connection')
-              this.openDownstreamConnection(connectionType.mcu, connectionInfo)
+              this.openDownstreamConnection(ConnectionType.mcu, connectionInfo)
               break
             case Direction.duplex:
               console.log('Opening duplex MCU connection')
-              this.openDuplexConnection(connectionType.mcu, connectionInfo)
+              this.openDuplexConnection(ConnectionType.mcu, connectionInfo)
               break
             default:
               console.error('Invalid direction for MCU', direction)
@@ -119,9 +119,9 @@ class Connection {
         videoStream = new fmLiveswitch.VideoStream(rawLocalMedia);
       }
 
-      if (requestedConnectionType === connectionType.sfu) {
+      if (requestedConnectionType === ConnectionType.sfu) {
         this.connection = channel.createSfuUpstreamConnection(audioStream, videoStream, dataStream);
-      } else if (requestedConnectionType === connectionType.mcu) {
+      } else if (requestedConnectionType === ConnectionType.mcu) {
         audioStream && audioStream.setLocalDirection(fmLiveswitch.StreamDirection.SendOnly)
         videoStream && videoStream.setLocalDirection(fmLiveswitch.StreamDirection.SendOnly)
 
@@ -210,9 +210,9 @@ class Connection {
       videoStream = new fmLiveswitch.VideoStream(rawLocalMedia, remoteMedia);
     }
 
-    if (requestedConnectionType === connectionType.sfu) {
+    if (requestedConnectionType === ConnectionType.sfu) {
       this.connection = channel.createSfuDownstreamConnection(remoteConnectionInfo, audioStream, videoStream, dataStream);
-    } else if (requestedConnectionType === connectionType.mcu) {
+    } else if (requestedConnectionType === ConnectionType.mcu) {
       audioStream && audioStream.setLocalDirection(fmLiveswitch.StreamDirection.ReceiveOnly)
       videoStream && videoStream.setLocalDirection(fmLiveswitch.StreamDirection.ReceiveOnly)
 
@@ -300,7 +300,7 @@ class Connection {
         videoStream = new fmLiveswitch.VideoStream(rawLocalMedia, remoteMedia);
       }
 
-      if (requestedConnectionType === connectionType.mcu) {
+      if (requestedConnectionType === ConnectionType.mcu) {
         this.connection = channel.createMcuConnection(audioStream, videoStream, dataStream);
       }
 

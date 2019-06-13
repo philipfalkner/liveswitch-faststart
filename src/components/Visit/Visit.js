@@ -4,6 +4,7 @@ import { Stack } from 'office-ui-fabric-react/lib-commonjs/Stack'
 import VisitHeader from '../VisitHeader'
 import ClientComponent from '../clientComponent'
 import Channel from '../Channel'
+import Session from '../Session'
 import Layout from '../Layout'
 import './Visit.scss'
 
@@ -19,15 +20,11 @@ class Visit extends Component {
   render() {
     const { params } = this.props.match
     const { search } = this.props.location
-    const { isInChannel } = this.state
     const { sessionType, role, userId } = querystring.parse(search.substring(1))
 
     return (
       <Stack verticalFill className='visit'>
         <VisitHeader />
-        <button onClick={() => this.toggleChannel()}>
-          {isInChannel ? 'Leave Channel' : 'Join Channel'}
-        </button>
         <Stack horizontal verticalFill>
           <Stack.Item grow>
             {/* Non-rendering components */}
@@ -35,11 +32,8 @@ class Visit extends Component {
               gatewayUrl='https://v1.liveswitch.fm:8443/sync' //'https://stage-liveswitch.on.novarihealth.net:8443/sync'
               applicationId='my-app-id'
               userId={userId}>
-              {isInChannel && <Channel
-                channelId={params.visitId}
-                sessionType={sessionType}
-                role={role}
-              />}
+              <Channel channelId={params.visitId} />
+              <Session sessionType={sessionType} />
             </ClientComponent>
 
             {/* Rendering components */}
