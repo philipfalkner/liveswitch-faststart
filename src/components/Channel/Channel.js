@@ -210,12 +210,28 @@ class Channel extends Component {
     this.connections = []
   }
 
-  isSfuUpStreamConnectionOpen () {
-    var isSfuUpStreamConnectionOpen = !!(this.connections.find((connection) => {
+  isSfuUpstreamConnectionOpen () {
+    var isSfuUpstreamConnectionOpen = !!(this.connections.find((connection) => {
       return connection.props.transportType === TransportType.sfu && connection.props.direction === Direction.upstream
     }));
 
-    return isSfuUpStreamConnectionOpen;
+    return isSfuUpstreamConnectionOpen;
+  }
+
+  isMcuDownstreamConnectionOpen () {
+    var isMcuDownstreamConnectionOpen = !!(this.connections.find((connection) => {
+      return connection.props.transportType === TransportType.mcu && connection.props.direction === Direction.downstream
+    }));
+
+    return isMcuDownstreamConnectionOpen;
+  }
+
+  isMcuDuplexConnectionOpen () {
+    var isMcuDuplexConnectionOpen = !!(this.connections.find((connection) => {
+      return connection.props.transportType === TransportType.mcu && connection.props.direction === Direction.duplex
+    }));
+
+    return isMcuDuplexConnectionOpen;
   }
 
   sendMessage (message, userId) {
@@ -236,28 +252,51 @@ class Channel extends Component {
 
   onRemoteUpstreamConnectionOpen (remoteConnectionInfo) {
     console.log('onRemoteUpstreamConnectionOpen', remoteConnectionInfo)
-    this.createConnection(TransportType.sfu, Direction.downstream, remoteConnectionInfo)
 
-    //check do we have a upstream connection open
-    //for sfu -> sfu
-    //for mcu -> sfu
-
-    if (remoteConnectionInfo.getType() === "sfu") {
-      if (this.isSfuUpStreamConnectionOpen() === false) {
-        this.createConnection(TransportType.sfu, Direction.upstream)
-      }
-    } else if (remoteConnectionInfo.getType() === "mcu") {
-      console.log('onRemoteUpstreamConnectionOpen: MCU not yet implemented')
-    }
-
-    // var isMcuUpStreamConnectionOpen = false;
-    // for (var connectionId in this.upstreamConnections) {
-    //   let connection = this.upstreamConnections[connectionId]
-    //   if (connection.type === "mcu") {
-    //     isMcuUpStreamConnectionOpen = true;
-    //     break;
-    //   }
-    // }
+    switch (this.props.sessionType) {
+      case sessionType.private:
+      case sessionType.public:
+        // Just open the same type of connection we just got
+        switch (remoteConnectionInfo.getType()) {
+          case 'sfu':
+            this.createConnection(TransportType.sfu, Direction.downstream, remoteConnectionInfo)
+            if (this.isSfuUpstreamConnectionOpen() === false) {
+              this.createConnection(TransportType.sfu, Direction.upstream)
+            }
+            break
+          case 'mcu':
+            if (this.isMcuDuplexConnectionOpen() === false) {
+              this.createConnection(TransportType.mcu, Direction.duplex, remoteConnectionInfo)
+            }
+            break
+          default:
+            console.error('Invalid connection type', remoteConnectionInfo)
+            break
+        }
+        break
+      case sessionType.presentation:
+        //if presenter then downstream is mcu
+        //if student then downstream is sfu
+        switch (this.props.role) {
+          case participantRole.presenter:
+            if (this.isMcuDownstreamConnectionOpen() === false) {
+              this.createConnection(TransportType.mcu, Direction.downstream, remoteConnectionInfo)
+            }
+            break
+          case participantRole.student:
+            if (remoteConnectionInfo.getType() === 'sfu') {
+              this.createConnection(TransportType.sfu, Direction.downstream, remoteConnectionInfo)
+            }
+            break
+          default:
+            console.error('Invalid role')
+            break
+        }
+        break
+      default:
+        console.error('Invalid session type')
+        break
+    }    
   }
 
   onRemoteUpstreamConnectionClose (remoteConnectionInfo) {
