@@ -10,7 +10,7 @@
     "i18next-fluent": "0.0.4",
     "i18next-fluent-backend": "0.0.2",
     "lodash": "^4.17.11",
-    "node-sass": "^4.11.0",
+    "node-sass": "^7.0.0",
     "office-ui-fabric-react": "^6.167.3",
     "querystring": "^0.2.0",
     "react": "^16.8.6",
